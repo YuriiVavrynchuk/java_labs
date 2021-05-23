@@ -1,4 +1,4 @@
-## Lab 9
+## Lab 10
 ### Task
  - Build REST service
  - Use JAX-RS
