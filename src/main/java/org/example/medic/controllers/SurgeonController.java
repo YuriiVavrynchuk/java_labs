@@ -22,6 +22,17 @@ public class SurgeonController {
         return ResponseEntity.ok(surgeonService.addSurgeon(surgeon));
     }
 
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<Surgeon> updateSurgeon(@PathVariable Integer id,@RequestBody Surgeon surgeon){
+        Surgeon elementToUpdate = surgeonService.getSurgeons().get(id);
+        if (elementToUpdate != null) {
+            surgeon.setId(id);
+            surgeonService.updateSurgeon(id, surgeon);
+            return ResponseEntity.ok(elementToUpdate);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @GetMapping
     public ResponseEntity<Collection<Surgeon>> getSurgeons(){
         return ResponseEntity.ok(surgeonService.getSurgeons());

@@ -26,6 +26,11 @@ public class SurgeonService {
         return surgeon;
     }
 
+    public  Surgeon updateSurgeon(Integer id, Surgeon surgeon){
+        surgeons.put(id, surgeon);
+        return surgeon;
+    }
+
     public List<Surgeon> getSurgeons(){
         return new ArrayList<>(surgeons.values());
     }
