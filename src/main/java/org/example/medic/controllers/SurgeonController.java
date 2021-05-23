@@ -1,18 +1,24 @@
 package org.example.medic.controllers;
 
-import org.example.medic.managers.MedicalManager;
 import org.example.medic.models.Surgeon;
 import org.example.medic.services.SurgeonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
+import java.util.logging.Logger;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 
 @RestController
 @RequestMapping("/surgeon")
 public class SurgeonController {
+
+    private static final Logger LOGGER = Logger.getLogger("org.example.medic.controllers.SurgeonController");
 
     @Autowired
     private SurgeonService surgeonService;
@@ -34,16 +40,26 @@ public class SurgeonController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<Surgeon>> getSurgeons(){
-        return ResponseEntity.ok(surgeonService.getSurgeons());
+    public ResponseEntity<Collection<Surgeon>> getSurgeons() {
+        try {
+            return ResponseEntity.ok(surgeonService.getSurgeons());
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("{id}")
     public ResponseEntity<Surgeon> getSurgeon(@PathVariable("id") int id) {
-        Surgeon surgeon = surgeonService.getSurgeon(id);
-        if (surgeon != null)
-            return ResponseEntity.ok(surgeon);
-        return ResponseEntity.notFound().build();
+        try {
+            Surgeon surgeon = surgeonService.getSurgeon(id);
+            if (surgeon != null)
+                return ResponseEntity.ok(surgeon);
+            return ResponseEntity.notFound().build();
+        }
+        catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("{id}")

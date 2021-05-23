@@ -1,45 +1,57 @@
 package org.example.medic.services;
 
+import lombok.Data;
 import org.example.medic.models.Surgeon;
+import org.example.medic.repository.SurgeonRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.ApplicationScope;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
+@Data
+@ApplicationScope
 public class SurgeonService {
 
-    AtomicInteger counter = new AtomicInteger(0);
+    private SurgeonRepository repository;
 
-    private final Map<Integer, Surgeon> surgeons;
-
-    public SurgeonService(HashMap<Integer, Surgeon> surgeons) {
-        this.surgeons = surgeons;
+    @Autowired
+    public SurgeonService(SurgeonRepository repository) {
+        this.repository = repository;
     }
 
     public Surgeon addSurgeon(Surgeon surgeon){
-        surgeon.setId(counter.incrementAndGet());
-        surgeons.put(surgeon.getId(), surgeon);
+        repository.save(surgeon);
         return surgeon;
     }
 
-    public  Surgeon updateSurgeon(Integer id, Surgeon surgeon){
-        surgeons.put(id, surgeon);
-        return surgeon;
+    public  Surgeon updateSurgeon(int id, Surgeon surgeon){
+        Surgeon surgeonToUpdate = repository.findById((long) id).orElse(null);
+        if(surgeon != null) {
+            surgeon = surgeon.copy();
+            surgeon.setId((int) id);
+            repository.save(surgeon);
+        }
+        return surgeonToUpdate;
     }
 
     public List<Surgeon> getSurgeons(){
-        return new ArrayList<>(surgeons.values());
+        return StreamSupport.stream(repository.findAll().spliterator(),false).collect(Collectors.toList());
     }
 
     public Surgeon getSurgeon(int id){
-        return surgeons.get(id);
+        return repository.findById((long) id).orElse(null);
     }
 
-    public void deleteSurgeon(Integer id){
-        surgeons.remove(id);
+    public int deleteSurgeon(int id){
+        Surgeon surgeon = repository.findById((long) id).orElse(null);
+        if(surgeon!=null) {
+            repository.deleteById((long) id);
+            return id;
+        }
+        return -1;
     }
 }
